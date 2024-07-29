@@ -1,43 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import io from 'socket.io-client';
-
-const socket = io('http://localhost:3000');
+// App.jsx
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import Home from './Home'; 
+import Messages from './pages/messages'; 
+import Home from './pages/home';
 
 function App() {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState('');
+    return (
+        <Router>
+            
 
-  useEffect(() => {
-    socket.on('message', message => {
-      setMessages(prevMessages => [...prevMessages, message]);
-    });
-
-    return () => {
-      socket.off('message');
-    };
-  }, []);
-
-  const sendMessage = () => {
-    socket.emit('message', input);
-    setInput('');
-  };
-
-  return (
-    <div>
-      <div>
-        {messages.map((msg, index) => (
-          <div key={index}>{msg}</div>
-        ))}
-      </div>
-      <input
-        type="text"
-        value={input}
-        onChange={(e) => setInput(e.target.value)}
-        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-      />
-      <button onClick={sendMessage}>Send</button>
-    </div>
-  );
+                <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/messages" element={<Messages />} />
+                </Routes>
+            
+        </Router>
+    );
 }
 
 export default App;
