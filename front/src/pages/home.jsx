@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect,useState } from 'react';
 import io from 'socket.io-client';
+import { useNavigate } from 'react-router-dom';
+import useProtectedData from '../auth/auth';
 
 const socket = io('http://localhost:3000');
 
@@ -7,10 +9,30 @@ function Home() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [userName, setUserName] = useState('');
-    const [showSignIn, setShowSignIn] = useState(false);
+    const [showSignUp, setShowSignUp] = useState(false);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
-    const handleSignIn = () => {
-        fetch('/api/signin', {
+
+
+
+
+
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            useProtectedData(token);
+        }
+    }, []);
+
+
+
+    const handleSignUp = () => {
+        setLoading(true);
+        setError('');
+
+        fetch('/api/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -19,19 +41,26 @@ function Home() {
         })
         .then(response => response.json())
         .then(data => {
+            setLoading(false);
             if (data.success) {
-                console.log('Sign-in successful:', data);
-                setShowSignIn(false);
+                console.log('Sign-up successful:', data);
+                setShowSignUp(false);
             } else {
-                console.error('Sign-in error:', data);
+                setError(data.message || 'Sign-up failed. Please try again.');
+                console.error('Sign-up error:', data);
             }
         })
         .catch(error => {
-            console.error('Error during sign-in:', error);
+            setLoading(false);
+            setError('Error during sign-up. Please try again.');
+            console.error('Error during sign-up:', error);
         });
     };
 
     const handleLogin = () => {
+        setLoading(true);
+        setError('');
+
         fetch('/api/login', {
             method: 'POST',
             headers: {
@@ -41,20 +70,29 @@ function Home() {
         })
         .then(response => response.json())
         .then(data => {
+            setLoading(false);
             if (data.success) {
                 console.log('Login successful:', data);
+                localStorage.setItem('token', data.token);
+                navigate('/messages');
             } else {
+                setError(data.message || 'Login failed. Please try again.');
                 console.error('Login error:', data);
             }
         })
         .catch(error => {
+            setLoading(false);
+            setError('Error during login. Please try again.');
             console.error('Error during login:', error);
         });
     };
 
+
+
     return (
         <div>
-            {showSignIn ? (
+            {error && <div style={{ color: 'red' }}>{error}</div>}
+            {showSignUp ? (
                 <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
                     <div>
                         <label>Email</label>
@@ -62,6 +100,7 @@ function Home() {
                             type="text"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            required
                         />
                     </div>
                     <div>
@@ -70,6 +109,7 @@ function Home() {
                             type="text"
                             value={userName}
                             onChange={(e) => setUserName(e.target.value)}
+                            required
                         />
                     </div>
                     <div>
@@ -78,10 +118,13 @@ function Home() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
                     </div>
-                    <button onClick={handleSignIn}>Sign In</button>
-                    <a href="#" onClick={() => setShowSignIn(false)}>Log In</a>
+                    <button onClick={handleSignUp} disabled={loading}>
+                        {loading ? 'Signing Up...' : 'Sign Up'}
+                    </button>
+                    <a href="#" onClick={() => setShowSignUp(false)}>Log In</a>
                 </div>
             ) : (
                 <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
@@ -101,8 +144,10 @@ function Home() {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <button onClick={handleLogin}>Log In</button>
-                    <a href="#" onClick={() => setShowSignIn(true)}>Sign In</a>
+                    <button onClick={handleLogin} disabled={loading}>
+                        {loading ? 'Logging In...' : 'Log In'}
+                    </button>
+                    <a href="#" onClick={() => setShowSignUp(true)}>Sign Up</a>
                 </div>
             )}
         </div>
