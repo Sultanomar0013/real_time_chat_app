@@ -1,12 +1,17 @@
 // server/index.js
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const http = require('http');
 const socketIo = require('socket.io');
 const mysql = require('mysql');
 const bcrypt = require('bcryptjs');
 const db = require('./db');
 const app = express();
+const dotenv = require('dotenv');
 
+
+dotenv.config();
+const jwtSecret = process.env.JWT_SECRET;
 
 
 const server = http.createServer(app);
@@ -25,6 +30,10 @@ const saltRounds = 10;
 
 app.post('/api/signup', (req, res) => {
   const { email, userName, password } = req.body;
+
+  if (!email || !userName || !password) {
+    return res.status(400).json({ success: false, message: 'All fields are required' });
+  }
 
   bcrypt.hash(password, saltRounds, (err, hashedPassword) =>{
     if(err){

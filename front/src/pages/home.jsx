@@ -3,6 +3,7 @@ import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
 import useProtectedData from '../auth/auth';
 
+
 const socket = io('http://localhost:3000');
 
 function Home() {
@@ -13,11 +14,6 @@ function Home() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
-
-
-
-
-
 
     useEffect(() => {
         const token = localStorage.getItem('token');
