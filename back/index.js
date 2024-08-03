@@ -74,7 +74,7 @@ app.post('/api/login', (req, res)=>{
             }
 
             if (isMatch) {
-                const token = jwt.sign({ id: user.id, email: user.email }, jwtSecret, { expiresIn: '7h' });
+                const token = jwt.sign({ id: user.id, email: user.email, password: user.password }, jwtSecret, { expiresIn: '7h' });
                 res.json({ success: true, token });
             } else {
                 res.status(400).json({ success: false, message: 'Incorrect password' });
@@ -82,6 +82,15 @@ app.post('/api/login', (req, res)=>{
     });
   })
 })
+
+app.get('/api/group', (req, res) => {
+  connection.query('SELECT * FROM group_chat', (error, results) => {
+    if (error) {
+      return res.status(500).send(error);
+    }
+    res.json(results);
+  });
+});
 
 app.get('/api/protected', verifyToken, (req, res) => {
   res.json({ success: true, message: 'Access granted', userId: req.userId });
