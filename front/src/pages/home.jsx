@@ -1,7 +1,7 @@
 import React, { useEffect,useState } from 'react';
 import io from 'socket.io-client';
 import { useNavigate } from 'react-router-dom';
-import useProtectedData from '../auth/auth';
+
 
 
 const socket = io('http://localhost:3000');
@@ -15,12 +15,7 @@ function Home() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            useProtectedData(token);
-        }
-    }, []);
+
 
 
 
@@ -28,14 +23,21 @@ function Home() {
         setLoading(true);
         setError('');
 
-        fetch('/api/signup', {
+        fetch('http://localhost:3000/api/signup', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ email, userName, password })
         })
-        .then(response => response.json())
+
+        .then(response => {
+            setLoading(false);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             setLoading(false);
             if (data.success) {
@@ -53,18 +55,32 @@ function Home() {
         });
     };
 
+
+
+
+
+
+
+
+
     const handleLogin = () => {
         setLoading(true);
         setError('');
 
-        fetch('/api/login', {
+        fetch('http://localhost:3000/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({ email, password })
         })
-        .then(response => response.json())
+        .then(response => {
+            setLoading(false);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             setLoading(false);
             if (data.success) {
