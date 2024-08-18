@@ -117,8 +117,9 @@ app.post('/api/group', (req, res) => {
       }
       res.json({ success: true, message: 'Group Create successful' });
     })
-    const query = 'INSERT INTO chat_group (groupName, password,createdBy) VALUES (?, ?, ?)';
-  db.query(query, [ groupName, hashedPassword, userId], (err, result) => {
+
+    const query = 'INSERT INTO chat_group_access (group_id, user_id,status) VALUES (?, ?, 1)';
+  db.query(query, [ groupName, userId], (err, result) => {
       if (err) {
           console.error('Error inserting user data:', err);
           return res.status(500).json({ success: false, message: 'Group Create failed' });
@@ -183,14 +184,14 @@ app.get('/api/get_group', authenticateToken , (req,res) =>{
 
 
 app.get('/api/showmessage', (req,res) =>{
-  const groupId = req.body.groupId
+  const groupId = req.query.groupId
   const query = 'SELECT * FROM messages WHERE group_id = ? ';
   db.query(query, [ groupId ], (err, result) => {
       if (err) {
           console.error('Error finding group chat', err);
           return res.status(500).json({ success: false, message: 'Error FInding Group' });
       }
-      console.log('Groups:', result);
+      console.log('Messages:', result);
       res.json({ success: true, messages: result });
 
     })
@@ -204,7 +205,7 @@ io.on('connection', (socket) => {
     const { content, groupId, userId} = messageData;
     io.emit('message', messageData);
 
-    const query = 'INSERT INTO messages (content, groupId , user_id) VALUES (?,?,?)';
+    const query = 'INSERT INTO messages (content, group_id , user_id) VALUES (?,?,?)';
     db.query(query, [content, groupId, userId], (err, result) => {
       if (err) throw err;
       console.log('Message saved to database');

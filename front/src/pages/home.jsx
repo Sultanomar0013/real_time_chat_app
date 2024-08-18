@@ -102,10 +102,10 @@ function Home() {
 
 
     return (
-        <div>
+        <div style={{ width:'100%',height:'100vh',display: 'flex', justifyContent: 'center', flexDirection: 'column',alignItems:'center' }}>
             {error && <div style={{ color: 'red' }}>{error}</div>}
             {showSignUp ? (
-                <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
+                <div style={{  width:'50%',height:'30%',display: 'flex', justifyContent: 'center', flexDirection: 'column',alignItems:'center' }}>
                     <div>
                         <label>Email</label>
                         <input
@@ -133,13 +133,13 @@ function Home() {
                             required
                         />
                     </div>
-                    <button onClick={handleSignUp} disabled={loading}>
+                    <button style={{ width:'30%',}} onClick={handleSignUp} disabled={loading}>
                         {loading ? 'Signing Up...' : 'Sign Up'}
                     </button>
                     <a href="#" onClick={() => setShowSignUp(false)}>Log In</a>
                 </div>
             ) : (
-                <div style={{ display: 'flex', justifyContent: 'center', flexDirection: 'column' }}>
+                <div style={{ width:'50%',height:'30%',display: 'flex', justifyContent: 'center', flexDirection: 'column',alignItems:'center' }}>
                     <div>
                         <label>Email</label>
                         <input
@@ -156,7 +156,7 @@ function Home() {
                             onChange={(e) => setPassword(e.target.value)}
                         />
                     </div>
-                    <button onClick={handleLogin} disabled={loading}>
+                    <button style={{ width:'30%',}} onClick={handleLogin} disabled={loading}>
                         {loading ? 'Logging In...' : 'Log In'}
                     </button>
                     <a href="#" onClick={() => setShowSignUp(true)}>Sign Up</a>
